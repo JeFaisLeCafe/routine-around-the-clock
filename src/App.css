@@ -1,38 +1,69 @@
-.App {
+.clock {
+  width: 600px;
+  height: 600px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  border: 2px solid black;
+  position: relative;
+}
+
+.clock::after {
+  content: "";
+  position: absolute;
+  background-color: black;
+  bottom: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  z-index: 5;
+  transform: translateX(-50%, -50%);
+  background-color: black;
+}
+
+.clock .number {
+  --rotation: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
   text-align: center;
+  transform: rotate(var(--rotation));
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.clock .number2 {
+  --rotation: 30deg;
+}
+.clock .number4 {
+  --rotation: 60deg;
+}
+.clock .number6 {
+  --rotation: 90deg;
+}
+.clock .number8 {
+  --rotation: 120deg;
+}
+.clock .number10 {
+  --rotation: 150deg;
+}
+.clock .number12 {
+  --rotation: 180deg;
+}
+.clock .number14 {
+  --rotation: 210deg;
+}
+.clock .number16 {
+  --rotation: 240deg;
+}
+.clock .number18 {
+  --rotation: 270deg;
+}
+.clock .number20 {
+  --rotation: 300deg;
+}
+.clock .number22 {
+  --rotation: 330deg;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.clock .center {
+  position: absolute;
 }
