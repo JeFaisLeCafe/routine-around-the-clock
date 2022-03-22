@@ -1,10 +1,9 @@
+/* eslint-disable react/jsx-no-target-blank */
 import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import "./App.css";
-import BarChart from "./components/BarChart";
-import PieChart from "./components/PieChart";
-import { SimpleClock } from "./components/SimpleClock";
 import SmartCircle from "./components/SmartCircle";
+import { copyToClipboard } from "./utils/copyToClipboard";
 
 const getRandomColor = () =>
   Math.floor(getRandomIntInclusive(1000, 16777215)).toString(16);
@@ -36,8 +35,6 @@ const formatData = (routines) => {
     };
   });
 
-  console.log("_routines", _routines);
-
   const allTimeframesArray = Array.from({ length: 48 }, (_, n) => {
     return {
       color: "#FFFFFF",
@@ -47,8 +44,6 @@ const formatData = (routines) => {
     };
   });
 
-  console.log("allTimeframesArray early", allTimeframesArray);
-
   _routines.forEach((routine) => {
     const indexes = getTimeframesFromRoutine(routine);
     indexes.forEach((v) => {
@@ -56,13 +51,9 @@ const formatData = (routines) => {
     });
   });
 
-  console.log("allTimeframesArray", allTimeframesArray);
-  return allTimeframesArray;
-
   // make blocks
-  // const allTimeframesArrayWithBlocks = makeBlocks(allTimeframesArray);
-  // console.log("allTimeframesArrayWithBlocks", allTimeframesArrayWithBlocks);
-  // return allTimeframesArrayWithBlocks;
+  const allTimeframesArrayWithBlocks = makeBlocks(allTimeframesArray);
+  return allTimeframesArrayWithBlocks;
 };
 
 const makeBlocks = (allTimeframesArray) => {
@@ -110,7 +101,7 @@ const getTimeframesFromRoutine = (routine) => {
   return res;
 };
 
-const selectPossibilies = Array.from({ length: 48 }, (_, n) => {
+const selectPossibilies = Array.from({ length: 49 }, (_, n) => {
   return {
     label: `${Math.floor(n / 2).toLocaleString("fr-FR", {
       minimumIntegerDigits: 2
@@ -123,12 +114,24 @@ const selectPossibilies = Array.from({ length: 48 }, (_, n) => {
 
 function App() {
   const [routines, setRoutines] = useState([]);
+
+  useEffect(() => {
+    let params = new URLSearchParams(window.location.search);
+
+    for (let param of params) {
+      if (param.length > 0 && param[0].length > 1) {
+        const jsonArr = JSON.parse(param[0]);
+        setRoutines(jsonArr);
+      }
+    }
+  }, []);
+
   const {
     control,
     register,
     handleSubmit,
     watch,
-    formState: { errors }
+    formState: { isDirty }
   } = useForm();
 
   const { fields, append, remove, update } = useFieldArray({
@@ -137,8 +140,17 @@ function App() {
   });
 
   const onSubmit = (data) => {
-    console.log(data);
     setRoutines(data.routines);
+  };
+
+  const share = async () => {
+    await copyToClipboard(
+      window.location + `?${encodeURIComponent(JSON.stringify(routines))}`
+    );
+    // this doesn't work and makes the copy to clipboard bug for some reason
+    // alert(
+    //   "Your routine has been copied to your clipboard ! You can now share it by pasting it in any conversation"
+    // );
   };
 
   const values = watch("routines", []);
@@ -149,89 +161,128 @@ function App() {
   }, [values, update]);
 
   return (
-    <div className="flex flex-col items-center min-w-screen min-h-screen bg-gray-200 p-5">
-      <header className="text-center pb-5">
-        <h1 className="font-bold text-xl">Routine Around the Clock</h1>
-        <p>
-          Here you can create your routine with a visual tool that will help you
-          get things done
-        </p>
-      </header>
+    <>
+      <div className="flex flex-col items-center min-w-screen min-h-screen bg-gray-200 space-y-8 pb-5">
+        <header className="text-center w-full border-b border-black">
+          <h1 className="font-bold text-xl p-5">Routine Around the Clock</h1>
+        </header>
 
-      {routines?.length > 0 && (
-        <SmartCircle routines={formatData(routines)}>TEST</SmartCircle>
-      )}
+        {routines?.length > 0 ? (
+          <>
+            <SmartCircle routines={formatData(routines)}></SmartCircle>
 
-      <form
-        className="flex flex-col space-y-4"
-        onSubmit={handleSubmit(onSubmit)}>
-        {fields.map((item, index) => (
-          <div
-            key={item.id}
-            className="flex flex-row justify-between space-x-4">
-            <label>De</label>
-            <select {...register(`routines.${index}.fromTime`)}>
-              {selectPossibilies.map(({ label, value }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-
-            <label>A</label>
-            <select {...register(`routines.${index}.toTime`)}>
-              {selectPossibilies.map(({ label, value }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-
-            <input {...register(`routines.${index}.type`)}></input>
-            <input
-              type="color"
-              {...register(`routines.${index}.color`)}></input>
-
-            <button type="button" onClick={() => remove(index)}>
-              Delete
+            <button
+              className="mb-16 px-5 py-3 bg-blue-400 rounded w-44"
+              onClick={share}>
+              Share my routine
             </button>
+          </>
+        ) : (
+          <div className="px-20 py-5 w-full flex flex-col items-center">
+            <div>
+              <p>
+                Here you can vizualise your routine with a visual tool that will
+                help you get things done
+              </p>
+              <p>
+                In just a few clicks, you'll vizualise an amazing routine plan
+                to meet your goals !
+              </p>
+              <p className="pt-5">
+                First, you need to click on{" "}
+                <span className="text-cyan-400">Add a routine</span>, to start
+                adding routines to your day
+              </p>
+              <p>
+                Then, you can customize your routines: give them a name, a
+                color, and a timeframe
+              </p>
+              <p>
+                Finally, you just click on the{" "}
+                <span className="text-blue-600">Vizualise button</span>, to
+                visualize your daily routine around the clock !
+              </p>
+
+              <p>
+                This work has been inspired by the research by{" "}
+                <a href="https://infowetrust.com/" target="_blank">
+                  infowetrust
+                </a>
+                , in particular{" "}
+                <a
+                  href="https://infowetrust.com/wp-content/uploads/2019/12/creative-routines-edit4-scaled.png"
+                  target="_blank">
+                  this infography
+                </a>
+              </p>
+            </div>
           </div>
-        ))}
-        <button
-          className="bg-cyan-200 p-4 rounded"
-          type="button"
-          onClick={() =>
-            append({
-              color: `#${getRandomColor()}`,
-              fromTime:
-                values?.length > 0 ? values[values.length - 1].toTime : "0",
-              toTime:
-                values?.length > 0
-                  ? parseInt(values[values.length - 1].toTime) + 30
-                  : "30",
-              type: "Sleep"
-            })
-          }>
-          Add a routine
-        </button>
-        <button className="px-5 py-3 bg-blue-400 rounded" type="submit">
-          Create
-        </button>
-      </form>
+        )}
 
-      {/* <PieChart data={data} outerRadius={300} innerRadius={200} /> */}
+        <form
+          className="flex flex-col space-y-4 bg-blue-50 rounded-lg p-4 items-center"
+          onSubmit={handleSubmit(onSubmit)}>
+          {fields.map((item, index) => (
+            <div
+              key={item.id}
+              className="flex flex-row justify-between space-x-5 pb-3">
+              <label>De</label>
+              <select {...register(`routines.${index}.fromTime`)}>
+                {selectPossibilies.map(({ label, value }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
 
-      {/* <BarChart /> */}
+              <label>A</label>
+              <select {...register(`routines.${index}.toTime`)}>
+                {selectPossibilies.map(({ label, value }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
 
-      {/* <CircleProgressBar
-        size={500}
-        progressPercentage={55}
-        progressColor="text-blue-400"
-        circleBgColor="text-white"
-      /> */}
+              <input {...register(`routines.${index}.type`)}></input>
+              <input
+                type="color"
+                {...register(`routines.${index}.color`)}></input>
 
-      {/* <SimpleClock /> */}
-    </div>
+              <button type="button" onClick={() => remove(index)}>
+                Delete
+              </button>
+            </div>
+          ))}
+          <button
+            className="bg-cyan-200 px-5 py-2 rounded w-44"
+            type="button"
+            onClick={() =>
+              append({
+                color: `#${getRandomColor()}`,
+                fromTime:
+                  values?.length > 0 ? values[values.length - 1].toTime : "0",
+                toTime:
+                  values?.length > 0
+                    ? parseInt(values[values.length - 1].toTime) + 60
+                    : "60",
+                type: "Sleep"
+              })
+            }>
+            Add a routine
+          </button>
+          <button
+            className="px-5 py-3 bg-blue-400 rounded w-44 disabled:bg-gray-300"
+            type="submit"
+            disabled={!isDirty}>
+            Vizualise
+          </button>
+        </form>
+      </div>
+      <footer className="w-full border-t border-t-black p-4 bg-gray-100 text-center">
+        <p>Made with ❤️ by Pierre-Étienne Soury - 2022 - MIT Licence</p>
+      </footer>
+    </>
   );
 }
 

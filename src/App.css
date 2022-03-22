@@ -1,3 +1,16 @@
+.axis .domain,
+.axis .tick line {
+  stroke-width: 2px;
+  stroke: DarkSlateGrey;
+}
+
+.axis .tick:first-of-type {
+  display: none;
+}
+
+.axis .tick text {
+  font-size: 22px;
+}
 .clock {
   width: 600px;
   height: 600px;
@@ -29,7 +42,9 @@
   text-align: center;
   transform: rotate(var(--rotation));
 }
-
+a {
+  @apply text-purple-400;
+}
 .clock .number2 {
   --rotation: 30deg;
 }
