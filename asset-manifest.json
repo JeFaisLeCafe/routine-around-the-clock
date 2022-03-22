@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/routine-around-the-clock/static/css/main.57df64ea.css",
+    "main.js": "/routine-around-the-clock/static/js/main.498ec1f3.js",
+    "static/js/787.0305d7d0.chunk.js": "/routine-around-the-clock/static/js/787.0305d7d0.chunk.js",
+    "index.html": "/routine-around-the-clock/index.html",
+    "main.57df64ea.css.map": "/routine-around-the-clock/static/css/main.57df64ea.css.map",
+    "main.498ec1f3.js.map": "/routine-around-the-clock/static/js/main.498ec1f3.js.map",
+    "787.0305d7d0.chunk.js.map": "/routine-around-the-clock/static/js/787.0305d7d0.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.57df64ea.css",
+    "static/js/main.498ec1f3.js"
+  ]
+}
